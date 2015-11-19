@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
-namespace RxMVVMDemoWin8
+namespace RxMVVMDemoApp8
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
 
-  <Identity Name="f767b8b3-d1ce-459e-a241-4df0c306c1e6"
+  <Identity Name="00ee7665-325e-49a1-a385-5178684e5430"
             Publisher="CN=Ivo"
             Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>RxMVVMDemoWin8.Windows</DisplayName>
+    <DisplayName>RxMVVMDemoApp8.Windows</DisplayName>
     <PublisherDisplayName>Ivo</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -23,12 +23,12 @@
   <Applications>
     <Application Id="App"
         Executable="$targetnametoken$.exe"
-        EntryPoint="RxMVVMDemoWin8.Windows.App">
+        EntryPoint="RxMVVMDemoApp8.Windows.App">
         <m2:VisualElements
-            DisplayName="RxMVVMDemoWin8.Windows"
+            DisplayName="RxMVVMDemoApp8.Windows"
             Square150x150Logo="Assets\Logo.png"
             Square30x30Logo="Assets\SmallLogo.png"
-            Description="RxMVVMDemoWin8.Windows"
+            Description="RxMVVMDemoApp8.Windows"
             ForegroundText="light"
             BackgroundColor="#464646">
             <m2:SplashScreen Image="Assets\SplashScreen.png" />

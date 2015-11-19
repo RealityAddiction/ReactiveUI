@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>8b73dc58-e040-4fc5-a6bf-3b0b5b3c5be5</SharedGUID>
+    <SharedGUID>a61486ed-b3a6-464f-8b04-1095996ce9ec</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>RxMVVMDemoWin8</Import_RootNamespace>
+    <Import_RootNamespace>RxMVVMDemoApp8</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Include="$(MSBuildThisFileDirectory)App.xaml">
@@ -15,5 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)FlickrPhoto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainViewModel.cs" />
   </ItemGroup>
 </Project>
