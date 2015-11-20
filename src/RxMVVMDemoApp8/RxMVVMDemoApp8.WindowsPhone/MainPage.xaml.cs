@@ -22,11 +22,14 @@ namespace RxMVVMDemoApp8
     /// </summary>
     public sealed partial class MainPage : Page
     {
+		public MainViewModel ViewModel { get; protected set; }
         public MainPage()
         {
             this.InitializeComponent();
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
+			ViewModel = new MainViewModel();
+			this.DataContext = ViewModel;
         }
 
         /// <summary>

@@ -105,7 +105,6 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 
 *.orig
-src/sources_1.0.5/BlueKiwi.Connector/UpgradeLog.htm
 
 #Ignore continuoustest assemblies
 *.mm.dll

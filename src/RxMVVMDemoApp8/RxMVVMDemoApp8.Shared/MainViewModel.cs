@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
 
@@ -56,9 +59,12 @@ namespace RxMVVMDemoApp8
 
 		public static List<FlickrPhoto> GetSearchResultsFromFlickr(string searchTerm)
 		{
-			var doc = XDocument.Load(String.Format(CultureInfo.InvariantCulture,
+			HttpClient client = new HttpClient();
+			Stream httpDoc = client.GetStreamAsync(String.Format(CultureInfo.InvariantCulture,
 				"http://api.flickr.com/services/feeds/photos_public.gne?tags={0}&format=rss_200",
-				WebUtility.UrlEncode(searchTerm)));
+				WebUtility.UrlEncode(searchTerm))).Result;
+
+			var doc = XDocument.Load(httpDoc);
 
 			if (doc.Root == null)
 				return null;
