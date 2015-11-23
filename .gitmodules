@@ -1,0 +1,5 @@
+
+[submodule "bk-sdk"]
+	path = bk-sdk
+	url = git@gitlab.devbk.net:dotnet-team/bk-sdk.git
+	branch = master
