@@ -12,79 +12,108 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
+using BlueKiwi.SDK.Models;
+using BlueKiwi.SDK.ServiceAgents.Request;
+using BlueKiwi.SDK.Contracts.Services;
+using BlueKiwi.SDK.Services;
+using BlueKiwi.SDK.ServiceAgents;
+using BlueKiwi.SDK.Contracts;
+using BlueKiwi.SDK.Contracts.ServiceAgents;
+using BlueKiwi.SDK.Contracts.Domain;
+using BlueKiwi.SDK.Domain;
+using BlueKiwi.SDK.ServiceAgents.Response.Me;
+using System.Threading;
+using BlueKiwi.SDK.ServiceAgents.Response;
+using BlueKiwi.SDK.ServiceAgents.Response.Feed;
+using System.Reactive.Disposables;
+
 
 namespace RxMVVMDemoApp8
 {
 	public class MainViewModel : ReactiveObject
 	{
-		private string _searchTerm;
-		public string SearchTerm
-		{
-			get { return _searchTerm; }
-			set { this.RaiseAndSetIfChanged(ref _searchTerm, value); }
-		}
+		private const string _accessToken = "bc6921b2ca5144fc050e163dc52a5cc3";
+		private IPagingFilter _paging;
+		private IRestUserApiServiceAgent _userAgent;
+		public IUserService _userService;	
+		public IBlueKiwiIdentity _identity;
 
-		ObservableAsPropertyHelper<List<FlickrPhoto>> _SearchResults;
-		public List<FlickrPhoto> SearchResults
-		{
-			get { return _SearchResults != null ? _SearchResults.Value : new List<FlickrPhoto>(); }
-		}
+		private bool _isLoading;
 
-		public ReactiveCommand<object> ClickMe { get; private set; }
-		public ReactiveCommand<object> ExecuteSearch { get; protected set; }
+		public bool IsLoading
+		{
+			get { return _isLoading; }
+			set { this.RaiseAndSetIfChanged(ref _isLoading, value); }
+		}
+		
+
+		public ReactiveList<Post> SearchResults { get; set; }
+		public ReactiveCommand<Post> ExecuteSearch { get; protected set; }
 
 		public MainViewModel()
 		{
-			ExecuteSearch = ReactiveCommand.Create();
+			SearchResults = new ReactiveList<Post>();
+			var canExecute = this.WhenAny(x => x.IsLoading, x => !x.GetValue() );
 
-			var canClickMeObservable = this.WhenAny(vm => vm.SearchTerm,
-				s => !string.IsNullOrWhiteSpace(s.Value));
+			_paging = new Paging() { Limit = 20, Offset = 0 };
 
-			ClickMe = ReactiveCommand.Create(canClickMeObservable);
-			ClickMe.Subscribe(x => Debug.WriteLine("Clicked"));
+			//ISdkSettings settings = new CoreSettings();
+			//_authAgent = new OAuth2ServiceAgent(settings);
 
-			this.ObservableForProperty(x => x.SearchTerm)
-				.Throttle(TimeSpan.FromMilliseconds(800), RxApp.TaskpoolScheduler)
-				.Select(x => x.Value)
-				.DistinctUntilChanged()
-				.Where(x => !String.IsNullOrWhiteSpace(x))
-				.InvokeCommand(ExecuteSearch);
+			_identity = new BlueKiwiIdentity();
+			_identity.InstanceUrl = "https://partners-beta.sandboxbk.net";
+			_identity.User = new MeResponse() { 
+				Avatar = "https://partners-beta.sandboxbk.net/cache/partnersbeta/user/avatar/7b37cd0595f0793baa25c3546608ded5_avatar_small.jpg?ttl=1430397197",
+				Id = 1689,
+				Login = "ibs"
+			};
 
-			IObservable<List<FlickrPhoto>> results;
-			results = ExecuteSearch.Select(term => GetSearchResultsFromFlickr((string)term));
+			_identity.Token = new BlueKiwiOAuthToken() { AccessToken = "a12b2b7511281a98ac07cdcd0ddb3a26" };
 
-			// ...which we then immediately put into the SearchResults Property.
-			_SearchResults = results.ToProperty(this, x => x.SearchResults, new List<FlickrPhoto>());
+
+			_userAgent = new RestUserApiServiceAgent(_identity);
+			_userService = new UserService(_userAgent);
+
+			ExecuteSearch = ReactiveCommand.CreateAsyncObservable<Post>(canExecute, _ => GetPosts().Finally(Final));
+
+			ExecuteSearch.Subscribe(OnNext,new CancellationToken());
 		}
 
-		public static List<FlickrPhoto> GetSearchResultsFromFlickr(string searchTerm)
+		private void Final()
 		{
-			HttpClient client = new HttpClient();
-			Stream httpDoc = client.GetStreamAsync(String.Format(CultureInfo.InvariantCulture,
-				"http://api.flickr.com/services/feeds/photos_public.gne?tags={0}&format=rss_200",
-				WebUtility.UrlEncode(searchTerm))).Result;
+			IsLoading = false;
+		}
 
-			var doc = XDocument.Load(httpDoc);
+		private void OnNext(Post obj)
+		{
+			SearchResults.Add(obj);
+		}
 
-			if (doc.Root == null)
-				return null;
+		public IObservable<Post> GetPosts()
+		{
+			IsLoading = true;
+			return Observable.Create<Post>(async (IObserver<Post> observer) => {	
+				Response<FeedObject> call = await _userService.GetFeed((int)_identity.User.Id, "_discussionFeed", _paging, new CancellationToken());
 
-			var titles = doc.Root.Descendants("{http://search.yahoo.com/mrss/}title")
-				.Select(x => x.Value);
+				if (call.Items == null || !call.Items.Any()) observer.OnCompleted();
 
-			var tagRegex = new Regex("<[^>]+>", RegexOptions.IgnoreCase);
-			var descriptions = doc.Root.Descendants("{http://search.yahoo.com/mrss/}description")
-				.Select(x => tagRegex.Replace(WebUtility.HtmlDecode(x.Value), ""));
+				_paging.Offset += 20;
 
-			var items = titles.Zip(descriptions,
-				(t, d) => new FlickrPhoto { Title = t, Description = d }).ToArray();
+				foreach (FeedObject obj in call.Items)
+				{
+					observer.OnNext(new Post() { Url = obj.Author.Avatar, Title = obj.Object.Name, Description = obj.Object.Name });
+					await Task.Delay(500);
+				}
+				Debug.WriteLine("Before OnCompleted");
+				observer.OnCompleted();
 
-			var urls = doc.Root.Descendants("{http://search.yahoo.com/mrss/}thumbnail")
-				.Select(x => x.Attributes("url").First().Value);
-
-			var ret = items.Zip(urls, (item, url) => { item.Url = url; return item; }).ToList();
-			return ret;
+				return Disposable.Create(() => 
+				{
+					Debug.WriteLine("Observer has unsubscribed"); 
+				});
+			});
 		}
 	}
 }
+
 

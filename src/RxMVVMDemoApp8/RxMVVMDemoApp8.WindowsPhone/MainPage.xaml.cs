@@ -30,6 +30,10 @@ namespace RxMVVMDemoApp8
             this.NavigationCacheMode = NavigationCacheMode.Required;
 			ViewModel = new MainViewModel();
 			this.DataContext = ViewModel;
+
+			if (ViewModel.ExecuteSearch.CanExecute(null))
+				ViewModel.ExecuteSearch.Execute(null);
+
         }
 
         /// <summary>
@@ -47,5 +51,17 @@ namespace RxMVVMDemoApp8
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
         }
+
+		private void ScrollViewer_ViewChanging(object sender, ScrollViewerViewChangingEventArgs e)
+		{
+			ScrollViewer viewer = sender as ScrollViewer;
+
+			bool canExecute = ViewModel.ExecuteSearch.CanExecute(null);
+
+			if(e.FinalView.VerticalOffset  >= viewer.ScrollableHeight - 500 && canExecute)
+			{
+				ViewModel.ExecuteSearch.Execute(null);
+			}
+		}
     }
 }

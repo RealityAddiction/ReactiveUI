@@ -141,6 +141,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\bk-sdk\src\BlueKiwi.SDK45.Portable\BlueKiwi.SDK45.Portable.csproj">
+      <Project>{92417626-b3d7-414b-90c1-4a710d39785f}</Project>
+      <Name>BlueKiwi.SDK45.Portable</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

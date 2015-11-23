@@ -15,7 +15,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)CoreSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FlickrPhoto.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Post.cs" />
   </ItemGroup>
 </Project>

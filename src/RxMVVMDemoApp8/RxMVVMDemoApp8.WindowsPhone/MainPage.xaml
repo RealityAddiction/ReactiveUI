@@ -28,23 +28,35 @@
 		</DataTemplate>
 	</Page.Resources>
 
-	<Grid Margin="12">
+	<Grid>
+		
+		
+		
+		
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto" />
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
+			<RowDefinition Height="70" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
+		<ProgressRing Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Height="70" Foreground="Green" Visibility="Visible" IsEnabled="True" IsActive="{Binding IsLoading}" />
 
-		<TextBlock FontSize="16" FontWeight="Bold" VerticalAlignment="Center">Search For:</TextBlock>
-		<TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-		<ProgressRing Grid.Row="1" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" Foreground="Green" Visibility="Visible" IsEnabled="True" IsActive="True" />
-		<ListView Grid.ColumnSpan="3" Grid.Row="2" Margin="0,6,0,0" 
-                 ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource PhotoDataTemplate}"  />
+		<ScrollViewer Grid.ColumnSpan="3" Grid.Row="2" ViewChanging="ScrollViewer_ViewChanging" VerticalScrollMode="Enabled" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+			<Grid>
+				<ListView Margin="0,6,0,0" IsItemClickEnabled="True" VerticalAlignment="Stretch"
+                 ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource PhotoDataTemplate}">
+					<ListView.ItemContainerStyle>
+						<Style TargetType="ListViewItem">
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						</Style>
+					</ListView.ItemContainerStyle>
+				</ListView>
+			</Grid>
+		</ScrollViewer>
+
 	</Grid>
 </Page>
